@@ -1,44 +1,514 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPTICINE - Ma cinéthèque personnelle</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bibliothèque Films & Séries</title>
+  <meta name="color-scheme" content="dark light">
+  <style>
+    :root{
+      --bg:#0b0b0c; --panel:#141416; --muted:#a8a8ad; --text:#f3f4f6; --red:#ef4444; --gray:#2a2a2e; --accent:#ef4444;
+      --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:linear-gradient(180deg,#08090a,#0b0b0c);color:var(--text)}
+    a{color:#fff}
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+    header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(10,10,12,.7);border-bottom:1px solid rgba(255,255,255,.06)}
+    h1{margin:0;font-size:clamp(20px,2.6vw,34px)}
+    .subtitle{color:var(--muted);font-size:14px}
 
-    <link rel="stylesheet" href="./assets/style.css">
+    /* Panel & controls */
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+    label{font-size:12px;color:var(--muted)}
+    input[type=text],input[type=url],select,input[type=search]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0e0f11;color:var(--text);outline:none}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:end}
+    .field{display:flex;flex-direction:column;gap:6px;grid-column:span 3}
+    .field.full{grid-column:1/-1}
+    .chips{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
+    .chip input{accent-color:var(--accent)}
+    .btn{appearance:none;border:none;background:linear-gradient(90deg,#ef4444,#991b1b);color:#fff;font-weight:700;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
+    .btn.secondary{background:#1f1f23;border:1px solid rgba(255,255,255,.12)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18)}
+
+    /* Toolbar */
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+    .toolbar .grow{flex:1;min-width:220px}
+    .switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+
+    /* Lists */
+    .section{margin:18px 0}
+    .section h2{font-size:16px;color:#fff;margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+    .poster{aspect-ratio:2/3;width:100%;object-fit:cover;background:#0e0f11}
+    .content{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:700;line-height:1.1}
+    .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+    .badges{display:flex;gap:6px;flex-wrap:wrap}
+    .badge{font-size:11px;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.04)}
+    .row-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .danger{background:#1f1f23;color:#fff;border:1px solid rgba(239,68,68,.45)}
+
+    /* Autocomplete */
+    .ac-wrap{position:relative}
+    .ac-list{position:absolute;inset-inline:0;top:100%;background:#0e0f11;border:1px solid rgba(255,255,255,.14);border-radius:10px;margin-top:6px;max-height:260px;overflow:auto;z-index:40;display:none}
+    .ac-item{display:flex;gap:10px;padding:8px 10px;cursor:pointer;align-items:center}
+    .ac-item:hover{background:#16161a}
+    .ac-item img{width:34px;height:51px;object-fit:cover;border-radius:6px;background:#111}
+
+    /* Accessibility helpers */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    footer{color:var(--muted);font-size:12px;text-align:center;padding:28px 0}
+
+    @media (max-width:900px){.field{grid-column:span 6}}
+    @media (max-width:640px){.field{grid-column:1/-1}}
+  </style>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+</script>
 </head>
 <body>
-    <header>
-        <h1>Ma Bibliothèque – Films & Séries</h1>
-        <p>Ajoute des films ou séries, récupère la jaquette automatiquement avec TMDB, coche ce que tu possèdes et choisis le format.</p>
-    </header>
+  <a href="#main" class="sr-only">Aller au contenu</a>
+  <header role="banner">
+    <div class="container">
+      <h1>Bibliothèque Films & Séries</h1>
+      <p class="subtitle">Mode sombre, accessible (WCAG), multi‑utilisateurs en temps réel via Firebase Firestore (sans compte). Formats DVD / Blu‑ray / 4K, Édition Simple ou Steelbook, regroupement par saga.</p>
+    </div>
+  </header>
 
-    <main>
-        <form id="addForm" style="position: relative;">
-            <input id="title" placeholder="Titre" required autocomplete="off">
-            <div id="autocomplete" class="autocomplete-suggestions" style="display:none;"></div>
-            <input id="year" placeholder="Année">
-            <input id="poster" placeholder="URL jaquette (facultatif)">
-            <select id="type">
-                <option value="film">Film</option>
-                <option value="serie">Série</option>
+  <main id="main" class="container" role="main" aria-live="polite">
+    <!-- FORMULAIRE D'AJOUT -->
+    <section class="panel" aria-labelledby="add-title">
+      <h2 id="add-title" class="sr-only">Ajouter un film, une série ou une saison</h2>
+      <form id="addForm" novalidate>
+        <div class="row">
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type" aria-label="Type d'entrée">
+              <option value="film">Film</option>
+              <option value="serie">Série</option>
+              <option value="saison">Saison</option>
             </select>
-            <input id="saga" placeholder="Saga/Univers">
-            <input id="seriesId" placeholder="Identifiant Série">
-            <input id="seasonNumber" placeholder="Saison n°">
-            <input id="spinOffOf" placeholder="Spin-off de">
-            <label><input type="checkbox" id="owned"> Je possède</label>
-            <label><input type="checkbox" id="format4k"> 4K</label>
-            <label><input type="checkbox" id="formatbr"> Blu-ray</label>
-            <button type="submit">Ajouter</button>
-        </form>
+          </div>
+          <div class="field ac-wrap">
+            <label for="title">Titre (ou cherche ci‑dessous)</label>
+            <input id="title" type="text" placeholder="Ex : Star Wars" autocomplete="off" aria-autocomplete="list" aria-controls="ac-list" />
+            <div id="ac-list" class="ac-list" role="listbox" aria-label="Suggestions"></div>
+          </div>
+          <div class="field">
+            <label for="year">Année</label>
+            <input id="year" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Ex : 1977" />
+          </div>
+          <div class="field">
+            <label for="posterUrl">URL Jaquette (facultatif)</label>
+            <input id="posterUrl" type="url" placeholder="https://...jpg" />
+          </div>
 
-    <div id="list"></div>
-    </main>
+          <div class="field">
+            <label for="saga">Saga / Univers (facultatif)</label>
+            <input id="saga" type="text" placeholder="Ex : Star Wars, MCU" />
+          </div>
+          <div class="field">
+            <label for="seriesId">ID Série (si Saison)</label>
+            <input id="seriesId" type="text" placeholder="Ex : SW-ANIM" />
+          </div>
+          <div class="field">
+            <label for="seasonNumber">N° Saison</label>
+            <input id="seasonNumber" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="1" />
+          </div>
+          <div class="field">
+            <label for="edition">Édition</label>
+            <select id="edition">
+              <option value="Simple">Simple</option>
+              <option value="Steelbook">Steelbook</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>Possession & Formats</label>
+            <div class="chips" role="group" aria-label="Formats et possession">
+              <label class="chip"><input id="owned" type="checkbox" /> Je possède</label>
+              <label class="chip"><input id="fmtDVD" type="checkbox" /> DVD</label>
+              <label class="chip"><input id="fmtBR" type="checkbox" /> Blu‑ray</label>
+              <label class="chip"><input id="fmt4K" type="checkbox" /> 4K</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <button class="btn" type="submit" aria-label="Ajouter l'entrée">Ajouter</button>
+          </div>
+          <div class="field">
+            <button id="resetBtn" class="btn secondary" type="button">Effacer</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- BARRE DE RECHERCHE / FILTRES -->
+    <div class="toolbar" role="region" aria-label="Recherche et filtres">
+      <input id="q" class="grow" type="search" placeholder="Rechercher par titre, acteur, saga…" aria-label="Rechercher" />
+      <select id="filterType" aria-label="Filtrer par type">
+        <option value="all">Tous</option>
+        <option value="film">Films</option>
+        <option value="serie">Séries</option>
+        <option value="saison">Saisons</option>
+      </select>
+      <select id="filterFormat" aria-label="Filtrer par format">
+        <option value="any">Format : Tous</option>
+        <option value="DVD">DVD</option>
+        <option value="Blu-ray">Blu‑ray</option>
+        <option value="4K">4K</option>
+      </select>
+      <select id="filterEdition" aria-label="Filtrer par édition">
+        <option value="any">Édition : Toutes</option>
+        <option value="Simple">Simple</option>
+        <option value="Steelbook">Steelbook</option>
+      </select>
+      <label class="switch"><input id="onlyOwned" type="checkbox"/> Possédés</label>
+      <button id="exportBtn" class="btn ghost" aria-label="Exporter JSON">Exporter</button>
+      <button id="importBtn" class="btn ghost" aria-label="Importer JSON">Importer</button>
+    </div>
+
+    <!-- LISTES POSSEDES / SOUHAITS -->
+    <section class="section" aria-labelledby="owned-title">
+      <h2 id="owned-title">Ma collection (Possédé)</h2>
+      <div id="ownedList" class="grid"></div>
+    </section>
+
+    <section class="section" aria-labelledby="wish-title">
+      <h2 id="wish-title">Liste de souhaits</h2>
+      <div id="wishList" class="grid"></div>
+    </section>
 
     <footer>
-
+      <p>Astuce : pour regrouper les suites/préquelles, remplis le champ « Saga / Univers ». Recherche de jaquettes et acteurs via TMDB. Multi‑édition en temps réel grâce à Firestore (collection partagée).</p>
     </footer>
-    <script src="./assets/script.js"></script>
+  </main>
+
+  <script type="module">
+    /*****************************************************
+     *  Dépendances Firebase (SDK v10 Modules)
+     *****************************************************/
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js';
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js';
+
+    /*****************************************************
+     *  CONFIG FIREBASE – RENSEIGNE TES VALEURS ICI
+     *  (pas de compte utilisateur : collection partagée)
+     *****************************************************/
+    // const firebaseConfig = {
+    //   apiKey: 'TA_CLE_API_FIREBASE',
+    //   authDomain: 'TON_PROJET.firebaseapp.com',
+    //   projectId: 'TON_PROJET',
+    //   storageBucket: 'TON_PROJET.appspot.com',
+    //   messagingSenderId: 'XXXX',
+    //   appId: '1:XXXX:web:YYYY'
+    // };
+
+      const firebaseConfig = {
+
+    apiKey: "AIzaSyBdhIFEoCniRLwxCGKTXQMd2huUQ95P3o4",
+
+    authDomain: "opticine-app.firebaseapp.com",
+
+    projectId: "opticine-app",
+
+    storageBucket: "opticine-app.firebasestorage.app",
+
+    messagingSenderId: "714233197988",
+
+    appId: "1:714233197988:web:649c8d1eef17f4a3337d31",
+
+    measurementId: "G-L8J8QM37F5"
+
+  };
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Chemin unique et partagé pour tous : multi‑utilisateurs sans compte
+    const ITEMS_PATH = 'library/items';
+
+    /*****************************************************
+     *  API affiches & recherche : TMDB
+     *  (clé gratuite requise)
+     *****************************************************/
+    const TMDB_KEY = '124bdc1601294994a241722466e53891';
+    const TMDB_BASE = 'https://api.themoviedb.org/3';
+    const TMDB_IMG = (p) => p ? `https://image.tmdb.org/t/p/w500${p}` : '';
+
+    async function tmdbSearch(query, kind){
+      const type = kind==='serie' ? 'tv' : 'movie';
+      const url = `${TMDB_BASE}/search/${type}?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&language=fr-FR&include_adult=false`;
+      const r = await fetch(url); const j = await r.json();
+      return (j.results||[]);
+    }
+    async function tmdbCredits(id, kind){
+      const type = kind==='serie' ? 'tv' : 'movie';
+      const url = `${TMDB_BASE}/${type}/${id}/credits?api_key=${TMDB_KEY}&language=fr-FR`;
+      const r = await fetch(url); const j = await r.json();
+      return (j.cast||[]).slice(0,10).map(c=>c.name);
+    }
+    async function tmdbDetails(id, kind){
+      const type = kind==='serie' ? 'tv' : 'movie';
+      const url = `${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=fr-FR`;
+      const r = await fetch(url); return await r.json();
+    }
+
+    /*****************************************************
+     *  Sélecteurs UI
+     *****************************************************/
+    const $ = (s)=>document.querySelector(s);
+    const listOwnedEl = $('#ownedList');
+    const listWishEl = $('#wishList');
+
+    const form = $('#addForm');
+    const typeEl = $('#type');
+    const titleEl = $('#title');
+    const yearEl = $('#year');
+    const posterEl = $('#posterUrl');
+    const sagaEl = $('#saga');
+    const seriesIdEl = $('#seriesId');
+    const seasonNumberEl = $('#seasonNumber');
+    const editionEl = $('#edition');
+    const ownedEl = $('#owned');
+    const dvdEl = $('#fmtDVD');
+    const brEl = $('#fmtBR');
+    const k4El = $('#fmt4K');
+
+    const qEl = $('#q');
+    const filterTypeEl = $('#filterType');
+    const filterFormatEl = $('#filterFormat');
+    const filterEditionEl = $('#filterEdition');
+    const onlyOwnedEl = $('#onlyOwned');
+
+    const acList = $('#ac-list');
+    const resetBtn = $('#resetBtn');
+    const exportBtn = $('#exportBtn');
+    const importBtn = $('#importBtn');
+
+    /*****************************************************
+     *  État local + LocalStorage (fallback offline)
+     *****************************************************/
+    const LS_KEY = 'mediaLib.v2';
+    const state = { items: [] };
+    function saveLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(state.items)); }
+    function loadLocal(){ try{ const r=localStorage.getItem(LS_KEY); if(r) state.items = JSON.parse(r);}catch(e){} }
+
+    /*****************************************************
+     *  Rendu des cartes
+     *****************************************************/
+    function render(){
+      const queryTxt = (qEl.value||'').toLowerCase().trim();
+      const t = filterTypeEl.value;
+      const f = filterFormatEl.value;
+      const e = filterEditionEl.value;
+      const onlyO = onlyOwnedEl.checked;
+
+      const filterFn = (it)=>{
+        if(t!=='all' && it.type!==t) return false;
+        if(onlyO && !it.owned) return false;
+        if(f!=='any' && !(it.formats||[]).includes(f)) return false;
+        if(e!=='any' && it.edition!==e) return false;
+        if(!queryTxt) return true;
+        const hay = `${it.title||''} ${(it.year||'')} ${(it.saga||'')} ${(it.actors||[]).join(' ')}`.toLowerCase();
+        return hay.includes(queryTxt);
+      };
+
+      const owned = state.items.filter(i=>i.owned).filter(filterFn);
+      const wish = state.items.filter(i=>!i.owned).filter(filterFn);
+
+      const renderList = (el, arr)=>{
+        el.innerHTML='';
+        // Group by saga
+        const groups = new Map();
+        for(const it of arr){
+          const key = it.saga?.trim() || 'Sans saga';
+          if(!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(it);
+        }
+        for(const [group, items] of groups){
+          // En‑tête groupe
+          const h = document.createElement('h3');
+          h.textContent = group; h.style.margin='10px 4px'; h.style.color='#fff';
+          el.appendChild(h);
+          const grid = document.createElement('div'); grid.className='grid'; el.appendChild(grid);
+          for(const item of items){ grid.appendChild(card(item)); }
+        }
+      };
+
+      renderList(listOwnedEl, owned);
+      renderList(listWishEl, wish);
+    }
+
+    function card(item){
+      const art = document.createElement('article'); art.className='card'; art.dataset.id=item.id||''; art.setAttribute('role','article');
+      const img = document.createElement('img'); img.className='poster'; img.alt = item.title||''; img.src = item.posterUrl || `https://via.placeholder.com/480x720.png?text=${encodeURIComponent(item.title||'Poster')}`; art.appendChild(img);
+      const c = document.createElement('div'); c.className='content';
+      const title = document.createElement('div'); title.className='title'; title.textContent = item.title||'Sans titre'; c.appendChild(title);
+      const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = `${item.type} ${item.year?`• ${item.year}`:''} ${item.saga?`• ${item.saga}`:''} ${item.seasonNumber?`• Saison ${item.seasonNumber}`:''}`; c.appendChild(meta);
+      const badges = document.createElement('div'); badges.className='badges';
+      (item.formats||[]).forEach(f=>{const b=document.createElement('span');b.className='badge';b.textContent=f;badges.appendChild(b)});
+      const ed=document.createElement('span'); ed.className='badge'; ed.textContent=item.edition||'Simple'; badges.appendChild(ed);
+      c.appendChild(badges);
+
+      // Actions
+      const row = document.createElement('div'); row.className='row-actions';
+      const left = document.createElement('div'); left.style.display='flex'; left.style.gap='8px'; left.style.alignItems='center';
+      const ownLabel = document.createElement('label'); ownLabel.className='chip'; const own = document.createElement('input'); own.type='checkbox'; own.checked=!!item.owned; own.addEventListener('change',()=>toggleOwned(item, own.checked)); ownLabel.appendChild(own); ownLabel.append(' Possédé'); left.appendChild(ownLabel);
+      const dvd = mkFmtToggle(item,'DVD'); const br=mkFmtToggle(item,'Blu-ray'); const k4=mkFmtToggle(item,'4K'); left.append(dvd,br,k4);
+      row.appendChild(left);
+      const del=document.createElement('button'); del.className='btn danger'; del.textContent='Supprimer'; del.addEventListener('click',()=>removeItem(item)); row.appendChild(del);
+      c.appendChild(row);
+
+      art.appendChild(c);
+      return art;
+    }
+    function mkFmtToggle(item,labelTxt){
+      const l=document.createElement('label'); l.className='chip';
+      const input=document.createElement('input'); input.type='checkbox'; input.checked=(item.formats||[]).includes(labelTxt);
+      input.addEventListener('change',()=>toggleFormat(item,labelTxt,input.checked)); l.appendChild(input); l.append(' '+labelTxt); return l;
+    }
+
+    /*****************************************************
+     *  Actions CRUD -> Firestore + LocalStorage
+     *****************************************************/
+    async function persist(item){
+      // Update local copy
+      const idx = state.items.findIndex(i=> (i.id && item.id && i.id===item.id) || i.localId===item.localId);
+      if(idx>-1){ state.items[idx]=item; } else { state.items.unshift(item); }
+      saveLocal(); render();
+      // Push Firestore
+      try{
+        if(item.id){ await updateDoc(doc(db, ITEMS_PATH, item.id), item); }
+        else{ const ref = await addDoc(collection(db, ITEMS_PATH), { ...item, createdAt: serverTimestamp() }); item.id = ref.id; saveLocal(); }
+      }catch(e){ console.warn('Firestore persist error', e); }
+    }
+    async function toggleOwned(item, val){ item.owned=!!val; await persist(item); }
+    async function toggleFormat(item, fmt, val){ const set=new Set(item.formats||[]); if(val)set.add(fmt); else set.delete(fmt); item.formats=[...set]; await persist(item); }
+    async function removeItem(item){ if(!confirm(`Supprimer « ${item.title} » ?`)) return; try{ if(item.id) await deleteDoc(doc(db, ITEMS_PATH, item.id)); }catch(e){} state.items = state.items.filter(i=>i!==item); saveLocal(); render(); }
+
+    /*****************************************************
+     *  Soumission formulaire
+     *****************************************************/
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const base = {
+        localId: crypto.randomUUID(),
+        type: typeEl.value,
+        title: titleEl.value.trim(),
+        year: yearEl.value.trim(),
+        posterUrl: posterEl.value.trim(),
+        saga: sagaEl.value.trim(),
+        seriesId: seriesIdEl.value.trim(),
+        seasonNumber: seasonNumberEl.value.trim(),
+        edition: editionEl.value,
+        owned: ownedEl.checked,
+        formats: [ ...(dvdEl.checked?['DVD']:[]), ...(brEl.checked?['Blu-ray']:[]), ...(k4El.checked?['4K']:[]) ],
+        actors: [],
+        createdAt: Date.now(),
+      };
+      if(!base.title) return alert('Titre requis');
+
+      // Si pas de jaquette, tente TMDB par titre
+      if(!base.posterUrl && TMDB_KEY && TMDB_KEY!=='TA_CLE_TMDB_ICI'){
+        try{
+          const r = await tmdbSearch(base.title, base.type);
+          if(r[0]){
+            base.posterUrl = TMDB_IMG(r[0].poster_path);
+            base.year = base.year || (r[0].release_date||r[0].first_air_date||'').slice(0,4);
+            // Saga depuis collection TMDB si présent
+            const det = await tmdbDetails(r[0].id, base.type);
+            if(det?.belongs_to_collection?.name) base.saga = base.saga || det.belongs_to_collection.name;
+            // Acteurs
+            base.actors = await tmdbCredits(r[0].id, base.type);
+          }
+        }catch(err){ console.warn('TMDB auto fetch error', err); }
+      }
+
+      await persist(base);
+      form.reset();
+      acList.style.display='none';
+    });
+
+    resetBtn.addEventListener('click', ()=>{ form.reset(); acList.style.display='none'; });
+
+    /*****************************************************
+     *  Autocomplete TMDB (titres)
+     *****************************************************/
+    let acTimer=null; 
+    titleEl.addEventListener('input', ()=>{
+      clearTimeout(acTimer);
+      const q = titleEl.value.trim(); if(q.length<2){ acList.style.display='none'; return; }
+      acTimer = setTimeout(async()=>{
+        try{
+          const results = await tmdbSearch(q, typeEl.value);
+          acList.innerHTML='';
+          results.slice(0,8).forEach(r=>{
+            const div=document.createElement('div'); div.className='ac-item'; div.setAttribute('role','option');
+            const img=document.createElement('img'); img.src = TMDB_IMG(r.poster_path) || 'https://via.placeholder.com/68x102?text=…'; img.alt='';
+            const title=document.createElement('div'); title.style.display='flex'; title.style.flexDirection='column';
+            const name=(typeEl.value==='serie'?r.name:r.title)||'Sans titre';
+            title.innerHTML = `<strong>${name}</strong><span style="color:#a8a8ad;font-size:12px">${(r.release_date||r.first_air_date||'').slice(0,4)}</span>`;
+            div.append(img,title);
+            div.addEventListener('click', async()=>{
+              titleEl.value = name;
+              yearEl.value = (r.release_date||r.first_air_date||'').slice(0,4);
+              posterEl.value = TMDB_IMG(r.poster_path) || '';
+              // Saga + acteurs
+              try{
+                const det = await tmdbDetails(r.id, typeEl.value);
+                if(det?.belongs_to_collection?.name) sagaEl.value = sagaEl.value || det.belongs_to_collection.name;
+                const cast = await tmdbCredits(r.id, typeEl.value);
+                // On ne stocke pas ici, mais on gardera lors de l'ajout
+                (titleEl)._selectedCast = cast; // attache temporaire
+              }catch{}
+              acList.style.display='none';
+              titleEl.focus();
+            });
+            acList.appendChild(div);
+          });
+          acList.style.display = acList.children.length? 'block':'none';
+        }catch(e){ acList.style.display='none'; }
+      }, 250);
+    });
+    document.addEventListener('click',(e)=>{ if(!acList.contains(e.target) && e.target!==titleEl) acList.style.display='none'; });
+
+    /*****************************************************
+     *  Export / Import JSON
+     *****************************************************/
+    exportBtn.addEventListener('click',()=>{
+      const blob=new Blob([JSON.stringify(state.items,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='bibliotheque.json'; a.click(); URL.revokeObjectURL(url);
+    });
+    importBtn.addEventListener('click',()=>{
+      const input=document.createElement('input'); input.type='file'; input.accept='application/json';
+      input.onchange=async()=>{ const f=input.files?.[0]; if(!f) return; const txt=await f.text(); try{ const arr=JSON.parse(txt); if(Array.isArray(arr)){ state.items=arr; saveLocal(); render(); } }catch{ alert('Import invalide'); } };
+      input.click();
+    });
+
+    /*****************************************************
+     *  Abonnement temps réel Firestore (multi‑utilisateurs)
+     *****************************************************/
+    loadLocal();
+    render();
+
+    const qItems = query(collection(db, ITEMS_PATH), orderBy('createdAt','desc'));
+    onSnapshot(qItems, (snap)=>{
+      const remote=[]; snap.forEach(d=>remote.push({ id:d.id, ...d.data() }));
+      // Fusion simple : privilégie le serveur
+      const map=new Map(state.items.map(i=>[i.id||i.localId,i]));
+      state.items = remote.map(r=>({ ...map.get(r.id)||{}, ...r }));
+      saveLocal(); render();
+    }, (err)=>{ console.warn('Firestore snapshot error', err); });
+
+  </script>
 </body>
 </html>
