@@ -4,18 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTICINE - Ma cinéthèque personnelle</title>
+
+    <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
     <header>
-        
+        <h1>Ma Bibliothèque – Films & Séries</h1>
+        <p>Ajoute des films ou séries, récupère la jaquette automatiquement avec TMDB, coche ce que tu possèdes et choisis le format.</p>
     </header>
 
     <main>
+        <form id="addForm" style="position: relative;">
+            <input id="title" placeholder="Titre" required autocomplete="off">
+            <div id="autocomplete" class="autocomplete-suggestions" style="display:none;"></div>
+            <input id="year" placeholder="Année">
+            <input id="poster" placeholder="URL jaquette (facultatif)">
+            <select id="type">
+                <option value="film">Film</option>
+                <option value="serie">Série</option>
+            </select>
+            <input id="saga" placeholder="Saga/Univers">
+            <input id="seriesId" placeholder="Identifiant Série">
+            <input id="seasonNumber" placeholder="Saison n°">
+            <input id="spinOffOf" placeholder="Spin-off de">
+            <label><input type="checkbox" id="owned"> Je possède</label>
+            <label><input type="checkbox" id="format4k"> 4K</label>
+            <label><input type="checkbox" id="formatbr"> Blu-ray</label>
+            <button type="submit">Ajouter</button>
+        </form>
 
+    <div id="list"></div>
     </main>
 
     <footer>
 
     </footer>
+    <script src="./assets/script.js"></script>
 </body>
 </html>
