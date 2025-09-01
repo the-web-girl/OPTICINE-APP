@@ -3,512 +3,1091 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bibliothèque Films & Séries</title>
+  <title>🎬 Bibliothèque Films & Séries blablabla</title>
+  <meta name="description" content="Collection partagée multi-utilisateurs • Recherche TMDB automatique • Formats DVD/Blu-ray/4K • Éditions Simple/Steelbook • Synchronisation temps réel via Firebase">
   <meta name="color-scheme" content="dark light">
-  <style>
-    :root{
-      --bg:#0b0b0c; --panel:#141416; --muted:#a8a8ad; --text:#f3f4f6; --red:#ef4444; --gray:#2a2a2e; --accent:#ef4444;
-      --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:linear-gradient(180deg,#08090a,#0b0b0c);color:var(--text)}
-    a{color:#fff}
-    .container{max-width:1100px;margin:0 auto;padding:16px}
-    header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(10,10,12,.7);border-bottom:1px solid rgba(255,255,255,.06)}
-    h1{margin:0;font-size:clamp(20px,2.6vw,34px)}
-    .subtitle{color:var(--muted);font-size:14px}
 
-    /* Panel & controls */
-    .panel{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
-    label{font-size:12px;color:var(--muted)}
-    input[type=text],input[type=url],select,input[type=search]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0e0f11;color:var(--text);outline:none}
-    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:end}
-    .field{display:flex;flex-direction:column;gap:6px;grid-column:span 3}
-    .field.full{grid-column:1/-1}
-    .chips{display:flex;gap:10px;flex-wrap:wrap}
-    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
-    .chip input{accent-color:var(--accent)}
-    .btn{appearance:none;border:none;background:linear-gradient(90deg,#ef4444,#991b1b);color:#fff;font-weight:700;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
-    .btn.secondary{background:#1f1f23;border:1px solid rgba(255,255,255,.12)}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18)}
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+        /* Design system basé sur index.css */
+    :root {
+      /* Cinéma dark theme - noir, blanc, rouge, gris */
+      --background: 220 13% 6%;
+      --foreground: 0 0% 98%;
+      --card: 220 13% 8%;
+      --card-foreground: 0 0% 98%;
+      --popover: 220 13% 8%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 84% 60%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 220 9% 46%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 220 13% 16%;
+      --muted-foreground: 220 9% 70%;
+      --accent: 0 84% 60%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 84% 60%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 220 13% 20%;
+      --input: 220 13% 16%;
+      --ring: 0 84% 60%;
+      --radius: 0.75rem;
+
+      /* Custom cinema theme colors */
+      --cinema-bg: 220 13% 4%;
+      --cinema-panel: 220 13% 8%;
+      --cinema-red: 0 84% 60%;
+      --cinema-gray: 220 9% 46%;
+      --cinema-white: 0 0% 98%;
+      --cinema-black: 220 13% 6%;
+      --cinema-border: 220 13% 20%;
+      
+      /* Gradients */
+      --gradient-cinema: linear-gradient(135deg, hsl(var(--cinema-bg)), hsl(220 13% 2%));
+      --gradient-panel: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      --gradient-red: linear-gradient(90deg, hsl(var(--cinema-red)), hsl(0 62% 45%));
+      
+      /* Shadows */
+      --shadow-elegant: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --shadow-red: 0 0 20px hsla(var(--cinema-red), 0.3);
+      
+      /* Animations */
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+      background: var(--gradient-cinema);
+      color: hsl(var(--foreground));
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: hsl(var(--background) / 0.8);
+      border-bottom: 1px solid hsl(var(--border));
+      padding: 1.5rem 0;
+    }
+
+    .header-content {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: hsl(var(--foreground));
+    }
+
+    .subtitle {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.875rem;
+      max-width: 64rem;
+      margin: 0 auto;
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--gradient-panel);
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-elegant);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field.col-3 { grid-column: span 3; }
+    .field.col-6 { grid-column: span 6; }
+    .field.col-12 { grid-column: span 12; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: hsl(var(--muted-foreground));
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid hsl(var(--border));
+      background: hsl(var(--input));
+      color: hsl(var(--foreground));
+      font-size: 0.875rem;
+      transition: var(--transition-smooth);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition-smooth);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient-red);
+      color: hsl(var(--primary-foreground));
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-red);
+    }
+
+    .btn-secondary {
+      background: hsl(var(--secondary));
+      color: hsl(var(--secondary-foreground));
+      border: 1px solid hsl(var(--border));
+    }
+
+    .btn-secondary:hover {
+      background: hsl(var(--secondary) / 0.8);
+    }
+
+    .btn-destructive {
+      background: hsl(var(--destructive));
+      color: hsl(var(--destructive-foreground));
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid hsl(var(--border));
+      color: hsl(var(--foreground));
+    }
+
+    .btn-ghost:hover {
+      background: hsl(var(--accent) / 0.1);
+    }
+
+    /* Chips */
+    .chips {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid hsl(var(--border));
+      background: hsl(var(--card) / 0.5);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .chip:hover {
+      background: hsl(var(--card));
+    }
+
+    .chip input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      accent-color: hsl(var(--accent));
+    }
 
     /* Toolbar */
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-    .toolbar .grow{flex:1;min-width:220px}
-    .switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+    .toolbar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 2rem 0;
+    }
+
+    .toolbar .search-input {
+      flex: 1;
+      min-width: 200px;
+    }
 
     /* Lists */
-    .section{margin:18px 0}
-    .section h2{font-size:16px;color:#fff;margin:0 0 10px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
-    .poster{aspect-ratio:2/3;width:100%;object-fit:cover;background:#0e0f11}
-    .content{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-    .title{font-weight:700;line-height:1.1}
-    .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
-    .badges{display:flex;gap:6px;flex-wrap:wrap}
-    .badge{font-size:11px;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.04)}
-    .row-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .danger{background:#1f1f23;color:#fff;border:1px solid rgba(239,68,68,.45)}
+    .section {
+      margin: 3rem 0;
+    }
+
+    .section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: hsl(var(--foreground));
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      border: 2px solid green;
+    }
+
+    /* Cards */
+    .card {
+      /* background: var(--gradient-panel); */
+      background-color: lightcoral;
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-elegant);
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background: hsl(var(--muted));
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: hsl(var(--foreground));
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 0.75rem;
+    }
+
+    .badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      font-size: 0.625rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      border: 1px solid hsl(var(--border));
+      background: hsl(var(--muted) / 0.3);
+      color: hsl(var(--muted-foreground));
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .card-actions-left {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
     /* Autocomplete */
-    .ac-wrap{position:relative}
-    .ac-list{position:absolute;inset-inline:0;top:100%;background:#0e0f11;border:1px solid rgba(255,255,255,.14);border-radius:10px;margin-top:6px;max-height:260px;overflow:auto;z-index:40;display:none}
-    .ac-item{display:flex;gap:10px;padding:8px 10px;cursor:pointer;align-items:center}
-    .ac-item:hover{background:#16161a}
-    .ac-item img{width:34px;height:51px;object-fit:cover;border-radius:6px;background:#111}
+    .ac-wrapper {
+      position: relative;
+    }
 
-    /* Accessibility helpers */
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .ac-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: hsl(var(--popover));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.5rem;
+      margin-top: 0.25rem;
+      max-height: 320px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
 
-    footer{color:var(--muted);font-size:12px;text-align:center;padding:28px 0}
+    .ac-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      cursor: pointer;
+      align-items: center;
+    }
 
-    @media (max-width:900px){.field{grid-column:span 6}}
-    @media (max-width:640px){.field{grid-column:1/-1}}
+    .ac-item:hover {
+      background: hsl(var(--accent) / 0.1);
+    }
+
+    .ac-item img {
+      width: 40px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 0.25rem;
+      background: hsl(var(--muted));
+    }
+
+    .ac-item-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ac-item-title {
+      font-weight: 600;
+      color: hsl(var(--foreground));
+    }
+
+    .ac-item-year {
+      font-size: 0.75rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid hsl(var(--border));
+      background: hsl(var(--card) / 0.5);
+      padding: 2rem 0;
+      margin-top: 4rem;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 0.875rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem 0;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      padding: 1rem;
+      max-width: 300px;
+      z-index: 100;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: var(--transition-smooth);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      border-color: hsl(120 84% 60%);
+    }
+
+    .toast.error {
+      border-color: hsl(var(--destructive));
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .field.col-3 { grid-column: span 6; }
+      .field.col-6 { grid-column: span 12; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar .search-input { min-width: auto; }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .field.col-3, .field.col-6 { grid-column: span 12; }
+      .card-actions { flex-direction: column; align-items: stretch; }
+      .card-actions-left { justify-content: center; }
+    }
+    
+    /* Hidden */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   </style>
 
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-</script>
 </head>
+
 <body>
-  <a href="#main" class="sr-only">Aller au contenu</a>
-  <header role="banner">
+  <header>
     <div class="container">
-      <h1>Bibliothèque Films & Séries</h1>
-      <p class="subtitle">Mode sombre, accessible (WCAG), multi‑utilisateurs en temps réel via Firebase Firestore (sans compte). Formats DVD / Blu‑ray / 4K, Édition Simple ou Steelbook, regroupement par saga.</p>
+      <div class="header-content">
+        <h1>🎬 Bibliothèque Films & Séries</h1>
+        <p class="subtitle">
+          Collection partagée multi-utilisateurs • Recherche TMDB automatique • 
+          Formats DVD/Blu-ray/4K • Éditions Simple/Steelbook • 
+          Synchronisation temps réel via Firebase Firestore.
+        </p>
+      </div>
     </div>
   </header>
 
-  <main id="main" class="container" role="main" aria-live="polite">
-    <!-- FORMULAIRE D'AJOUT -->
-    <section class="panel" aria-labelledby="add-title">
-      <h2 id="add-title" class="sr-only">Ajouter un film, une série ou une saison</h2>
-      <form id="addForm" novalidate>
-        <div class="row">
-          <div class="field">
+  <main class="container">
+    <!-- Formulaire d'ajout -->
+    <section class="panel">
+      <h2 class="sr-only">Ajouter un film ou une série</h2>
+      <form id="addForm">
+        <div class="form-grid">
+          <div class="field col-3">
             <label for="type">Type</label>
-            <select id="type" aria-label="Type d'entrée">
+            <select id="type">
               <option value="film">Film</option>
               <option value="serie">Série</option>
-              <option value="saison">Saison</option>
             </select>
           </div>
-          <div class="field ac-wrap">
-            <label for="title">Titre (ou cherche ci‑dessous)</label>
-            <input id="title" type="text" placeholder="Ex : Star Wars" autocomplete="off" aria-autocomplete="list" aria-controls="ac-list" />
-            <div id="ac-list" class="ac-list" role="listbox" aria-label="Suggestions"></div>
+          
+          <div class="field col-6 ac-wrapper">
+            <label for="title">Titre (recherche automatique)</label>
+            <input id="title" type="text" placeholder="Ex: Star Wars" autocomplete="off" />
+            <div id="ac-list" class="ac-list"></div>
           </div>
-          <div class="field">
+          
+          <div class="field col-3">
             <label for="year">Année</label>
-            <input id="year" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Ex : 1977" />
+            <input id="year" type="text" placeholder="Ex: 1977" />
           </div>
-          <div class="field">
-            <label for="posterUrl">URL Jaquette (facultatif)</label>
-            <input id="posterUrl" type="url" placeholder="https://...jpg" />
+          
+          <div class="field col-6">
+            <label for="posterUrl">URL Jaquette (auto-remplie)</label>
+            <input id="posterUrl" type="url" placeholder="https://..." />
           </div>
-
-          <div class="field">
-            <label for="saga">Saga / Univers (facultatif)</label>
-            <input id="saga" type="text" placeholder="Ex : Star Wars, MCU" />
+          
+          <div class="field col-3">
+            <label for="saga">Saga/Univers</label>
+            <input id="saga" type="text" placeholder="Ex: Star Wars" />
           </div>
-          <div class="field">
-            <label for="seriesId">ID Série (si Saison)</label>
-            <input id="seriesId" type="text" placeholder="Ex : SW-ANIM" />
-          </div>
-          <div class="field">
-            <label for="seasonNumber">N° Saison</label>
-            <input id="seasonNumber" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="1" />
-          </div>
-          <div class="field">
+          
+          <div class="field col-3">
             <label for="edition">Édition</label>
             <select id="edition">
               <option value="Simple">Simple</option>
               <option value="Steelbook">Steelbook</option>
             </select>
           </div>
-
-          <div class="field full">
+          
+          <div class="field col-12">
             <label>Possession & Formats</label>
-            <div class="chips" role="group" aria-label="Formats et possession">
-              <label class="chip"><input id="owned" type="checkbox" /> Je possède</label>
-              <label class="chip"><input id="fmtDVD" type="checkbox" /> DVD</label>
-              <label class="chip"><input id="fmtBR" type="checkbox" /> Blu‑ray</label>
-              <label class="chip"><input id="fmt4K" type="checkbox" /> 4K</label>
+            <div class="chips">
+              <label class="chip">
+                <input id="owned" type="checkbox" />
+                Je possède
+              </label>
+              <label class="chip">
+                <input id="fmtDVD" type="checkbox" />
+                DVD
+              </label>
+              <label class="chip">
+                <input id="fmtBR" type="checkbox" />
+                Blu-ray
+              </label>
+              <label class="chip">
+                <input id="fmt4K" type="checkbox" />
+                4K
+              </label>
             </div>
           </div>
-
-          <div class="field">
-            <button class="btn" type="submit" aria-label="Ajouter l'entrée">Ajouter</button>
+          
+          <div class="field col-3">
+            <button class="btn btn-primary" type="submit">Ajouter</button>
           </div>
-          <div class="field">
-            <button id="resetBtn" class="btn secondary" type="button">Effacer</button>
+          
+          <div class="field col-3">
+            <button id="resetBtn" class="btn btn-secondary" type="button">Effacer</button>
           </div>
         </div>
       </form>
     </section>
 
-    <!-- BARRE DE RECHERCHE / FILTRES -->
-    <div class="toolbar" role="region" aria-label="Recherche et filtres">
-      <input id="q" class="grow" type="search" placeholder="Rechercher par titre, acteur, saga…" aria-label="Rechercher" />
-      <select id="filterType" aria-label="Filtrer par type">
+    <!-- Filtres -->
+    <div class="toolbar">
+      <input id="searchQuery" class="search-input" type="search" placeholder="Rechercher par titre, acteur, saga..." />
+      
+      <select id="filterType">
         <option value="all">Tous</option>
         <option value="film">Films</option>
         <option value="serie">Séries</option>
-        <option value="saison">Saisons</option>
       </select>
-      <select id="filterFormat" aria-label="Filtrer par format">
+      
+      <select id="filterFormat">
         <option value="any">Format : Tous</option>
         <option value="DVD">DVD</option>
-        <option value="Blu-ray">Blu‑ray</option>
+        <option value="Blu-ray">Blu-ray</option>
         <option value="4K">4K</option>
       </select>
-      <select id="filterEdition" aria-label="Filtrer par édition">
+      
+      <select id="filterEdition">
         <option value="any">Édition : Toutes</option>
         <option value="Simple">Simple</option>
         <option value="Steelbook">Steelbook</option>
       </select>
-      <label class="switch"><input id="onlyOwned" type="checkbox"/> Possédés</label>
-      <button id="exportBtn" class="btn ghost" aria-label="Exporter JSON">Exporter</button>
-      <button id="importBtn" class="btn ghost" aria-label="Importer JSON">Importer</button>
+      
+      <label class="chip">
+        <input id="onlyOwned" type="checkbox" />
+        Possédés uniquement
+      </label>
+      
+      <button id="exportBtn" class="btn btn-ghost">Exporter</button>
+      <button id="importBtn" class="btn btn-ghost">Importer</button>
     </div>
 
-    <!-- LISTES POSSEDES / SOUHAITS -->
-    <section class="section" aria-labelledby="owned-title">
-      <h2 id="owned-title">Ma collection (Possédé)</h2>
+    <!-- Listes -->
+    <div id="loading" class="loading">Chargement...</div>
+    
+    <section id="ownedSection" class="section" style="display: none;">
+      <h2>📀 Ma Collection</h2>
       <div id="ownedList" class="grid"></div>
     </section>
-
-    <section class="section" aria-labelledby="wish-title">
-      <h2 id="wish-title">Liste de souhaits</h2>
+    
+    <section id="wishSection" class="section" style="display: none;">
+      <h2>⭐ Liste de Souhaits</h2>
       <div id="wishList" class="grid"></div>
     </section>
-
-    <footer>
-      <p>Astuce : pour regrouper les suites/préquelles, remplis le champ « Saga / Univers ». Recherche de jaquettes et acteurs via TMDB. Multi‑édition en temps réel grâce à Firestore (collection partagée).</p>
-    </footer>
   </main>
 
-  <script type="module">
-    /*****************************************************
-     *  Dépendances Firebase (SDK v10 Modules)
-     *****************************************************/
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js';
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js';
+  <footer>
+    <div class="container">
+      <p class="footer-text">
+        💡 <strong>Astuce :</strong> Remplissez le champ "Saga/Univers" pour regrouper les suites. 
+        Recherche automatique des jaquettes et acteurs via TMDB. 
+        Multi-édition temps réel grâce à Firebase Firestore.
+      </p>
+    </div>
+  </footer>
 
-    /*****************************************************
-     *  CONFIG FIREBASE – RENSEIGNE TES VALEURS ICI
-     *  (pas de compte utilisateur : collection partagée)
-     *****************************************************/
-    // const firebaseConfig = {
-    //   apiKey: 'TA_CLE_API_FIREBASE',
-    //   authDomain: 'TON_PROJET.firebaseapp.com',
-    //   projectId: 'TON_PROJET',
-    //   storageBucket: 'TON_PROJET.appspot.com',
-    //   messagingSenderId: 'XXXX',
-    //   appId: '1:XXXX:web:YYYY'
-    // };
+  <!-- Toast container -->
+  <div id="toastContainer"></div>
 
-      const firebaseConfig = {
 
-    apiKey: "AIzaSyBdhIFEoCniRLwxCGKTXQMd2huUQ95P3o4",
+<script type="module">
+/* -------------------- IMPORTS FIREBASE (modules) -------------------- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  updateDoc,
+  doc,
+  serverTimestamp,
+  query as fsQuery,
+  orderBy,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-    authDomain: "opticine-app.firebaseapp.com",
+/* -------------------- CONFIGURATION (REMPLIS ICI) -------------------- */
+const firebaseConfig = {
+   apiKey: "AIzaSyBUHv_Tk3aDu0uH6wRuWxEkvD853o8HQpI",
+   authDomain: "opticine-library.firebaseapp.com",
+   projectId: "opticine-library",
+   storageBucket: "opticine-library.firebasestorage.app",
+   messagingSenderId: "363614655103",
+   appId: "1:363614655103:web:a53c68539ca98f6065e54a"
+};
 
-    projectId: "opticine-app",
+// Clé TMDB
+const TMDB_KEY = "124bdc1601294994a241722466e53891";
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_IMG = (p) => p ? `https://image.tmdb.org/t/p/w500${p}` : '';
 
-    storageBucket: "opticine-app.firebasestorage.app",
+/* -------------------- INIT FIREBASE & AUTH ANONYME -------------------- */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
 
-    messagingSenderId: "714233197988",
+let currentUserUid = null;
 
-    appId: "1:714233197988:web:649c8d1eef17f4a3337d31",
+signInAnonymously(auth)
+  .then(() => console.log("Firebase: connexion anonyme en cours..."))
+  .catch(err => console.error("Firebase Auth (signInAnonymously) erreur :", err));
 
-    measurementId: "G-L8J8QM37F5"
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUserUid = user.uid;
+    console.log("Auth OK — uid:", currentUserUid);
+  } else {
+    currentUserUid = null;
+    console.log("Utilisateur déconnecté");
+  }
+});
 
+/* -------------------- SELECTEURS -------------------- */
+const $ = sel => document.querySelector(sel);
+const byId = id => document.getElementById(id);
+
+const el = {
+  form: byId('addForm'),
+  type: byId('type'),
+  title: byId('title'),
+  year: byId('year'),
+  posterUrl: byId('posterUrl'),
+  saga: byId('saga'),
+  edition: byId('edition'),
+  ownedCheckbox: byId('owned'),
+  fmtDVD: byId('fmtDVD'),
+  fmtBR: byId('fmtBR'),
+  fmt4K: byId('fmt4K'),
+  acList: byId('ac-list'),
+  ownedList: byId('ownedList'),
+  wishList: byId('wishList'),
+  mainList: byId('list'), // fallback éventuel
+  loading: byId('loading'),
+  ownedSection: byId('ownedSection'),
+  wishSection: byId('wishSection'),
+  resetBtn: byId('resetBtn'),
+};
+
+/* -------------------- HELPERS -------------------- */
+const debounce = (fn, wait) => {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
+};
+
+function elText(field, fallback = '-') {
+  if (!field) return fallback;
+  if (Array.isArray(field)) return field.join(', ');
+  return String(field);
+}
+
+/* -------------------- TMDB: recherche & détails -------------------- */
+async function tmdbSearch(queryStr, kind = 'movie') {
+  try {
+    if (!TMDB_KEY) return [];
+    const type = (kind === 'serie' || kind === 'tv') ? 'tv' : 'movie';
+    const url = `${TMDB_BASE}/search/${type}?api_key=${TMDB_KEY}&language=fr-FR&query=${encodeURIComponent(queryStr)}&include_adult=false`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.results || [];
+  } catch (e) {
+    console.error('TMDB search error', e);
+    return [];
+  }
+}
+
+async function tmdbGetDetails(id, kind = 'movie') {
+  try {
+    if (!TMDB_KEY) return null;
+    const type = (kind === 'serie' || kind === 'tv') ? 'tv' : 'movie';
+    const url = `${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=fr-FR&append_to_response=credits`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error('TMDB details error', e);
+    return null;
+  }
+}
+
+function tmdbPosterPath(p) {
+  return p ? TMDB_IMG(p) : '';
+}
+
+/* -------------------- RENDU ITEMS -------------------- */
+function makeCard(item) {
+  const container = document.createElement('article');
+  container.className = 'card item-card';
+
+  const img = document.createElement('img');
+  img.className = 'poster';
+  img.alt = item.title || 'Poster';
+  img.src = item.posterUrl || `https://via.placeholder.com/480x720.png?text=${encodeURIComponent(item.title||'Poster')}`;
+  container.appendChild(img);
+
+  const content = document.createElement('div');
+  content.className = 'card-content';
+
+  const title = document.createElement('div');
+  title.className = 'card-title';
+  title.textContent = item.title || 'Sans titre';
+  content.appendChild(title);
+
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+  meta.innerHTML = `
+    <span>${item.type || ''}</span>
+    ${item.year ? `<span>• ${item.year}</span>` : ''}
+    ${item.saga ? `<span>• ${item.saga}</span>` : ''}
+    ${item.seasonNumber ? `<span>• Saison ${item.seasonNumber}</span>` : ''}
+  `;
+  content.appendChild(meta);
+
+  const badges = document.createElement('div');
+  badges.className = 'badges';
+  (item.formats || []).forEach(f => {
+    const b = document.createElement('span');
+    b.className = 'badge';
+    b.textContent = f;
+    badges.appendChild(b);
+  });
+  const ed = document.createElement('span');
+  ed.className = 'badge';
+  ed.textContent = item.edition || 'Simple';
+  badges.appendChild(ed);
+  content.appendChild(badges);
+
+  if (item.actors && item.actors.length) {
+    const a = document.createElement('div');
+    a.className = 'card-meta';
+    a.textContent = `Acteurs: ${Array.isArray(item.actors) ? item.actors.slice(0,5).join(', ') : item.actors}`;
+    content.appendChild(a);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'card-actions';
+  const left = document.createElement('div');
+  left.className = 'card-actions-left';
+
+  // Possédé
+  const ownedLabel = document.createElement('label');
+  ownedLabel.className = 'chip';
+  const ownedInput = document.createElement('input');
+  ownedInput.type = 'checkbox';
+  ownedInput.checked = !!item.obtained;
+  ownedLabel.appendChild(ownedInput);
+  ownedLabel.appendChild(document.createTextNode(' Possédé'));
+  ownedInput.addEventListener('change', async () => {
+    try {
+      await updateItem(item._id, { obtained: ownedInput.checked });
+    } catch (e) {
+      console.error('Erreur mise à jour obtained:', e);
+      alert('Erreur mise à jour');
+      ownedInput.checked = !ownedInput.checked;
+    }
+  });
+  left.appendChild(ownedLabel);
+
+  // Formats
+  ['DVD','Blu-ray','4K'].forEach(fmt => {
+    const lb = document.createElement('label');
+    lb.className = 'chip';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = (item.formats || []).includes(fmt);
+    cb.addEventListener('change', async () => {
+      try {
+        const formats = new Set(item.formats || []);
+        if (cb.checked) formats.add(fmt); else formats.delete(fmt);
+        await updateItem(item._id, { formats: Array.from(formats) });
+      } catch (e) {
+        console.error('Erreur format toggle', e);
+        alert('Erreur modification format');
+        cb.checked = !cb.checked;
+      }
+    });
+    lb.appendChild(cb);
+    lb.appendChild(document.createTextNode(' ' + fmt));
+    left.appendChild(lb);
+  });
+
+  row.appendChild(left);
+
+  // Supprimer
+  const delBtn = document.createElement('button');
+  delBtn.className = 'btn btn-destructive';
+  delBtn.textContent = 'Supprimer';
+  delBtn.addEventListener('click', async () => {
+    if (!confirm(`Supprimer « ${item.title} » ?`)) return;
+    try {
+      await deleteItem(item._id);
+    } catch (e) {
+      console.error('Erreur suppression', e);
+      alert('Erreur suppression');
+    }
+  });
+  row.appendChild(delBtn);
+
+  content.appendChild(row);
+
+  container.appendChild(content);
+  return container;
+}
+
+function clearLists() {
+  if (el.ownedList) el.ownedList.innerHTML = '';
+  if (el.wishList) el.wishList.innerHTML = '';
+  if (el.mainList) el.mainList.innerHTML = '';
+}
+
+/* -------------------- FIRESTORE CRUD -------------------- */
+async function addItemToFirestore(item) {
+  const docRef = await addDoc(collection(db, "library"), {
+    ...item,
+    createdAt: serverTimestamp(),
+    createdBy: currentUserUid || null,
+  });
+  return docRef.id;
+}
+
+async function updateItem(docId, patch) {
+  if (!docId) throw new Error('ID manquant');
+  const docRef = doc(db, "library", docId);
+  await updateDoc(docRef, patch);
+}
+
+async function deleteItem(docId) {
+  if (!docId) throw new Error('ID manquant');
+  await deleteDoc(doc(db, "library", docId));
+}
+
+/* -------------------- REAL-TIME SYNC -------------------- */
+function startRealtimeListener() {
+  try {
+    const q = fsQuery(collection(db, "library"), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+      const items = [];
+      snapshot.forEach(d => {
+        const data = d.data();
+        data._id = d.id;
+        if (data.obtained === undefined && data.owned !== undefined) data.obtained = data.owned;
+        if (!Array.isArray(data.formats)) data.formats = data.formats ? [data.formats] : [];
+        items.push(data);
+      });
+      if (el.loading) el.loading.style.display = 'none';
+      renderItems(items);
+    }, (err) => {
+      console.error('onSnapshot error', err);
+      if (el.loading) el.loading.textContent = 'Erreur de chargement.';
+    });
+  } catch (e) {
+    console.error('Erreur startRealtimeListener', e);
+    if (el.loading) el.loading.textContent = 'Erreur de synchronisation.';
+  }
+}
+
+/* -------------------- RENDER ALL ITEMS -------------------- */
+function renderItems(items) {
+  clearLists();
+  const obtained = items.filter(i => !!i.obtained);
+  const wish = items.filter(i => !i.obtained);
+
+  const renderTo = (containerEl, arr) => {
+    if (!containerEl) {
+      if (el.mainList) containerEl = el.mainList; else return;
+    }
+    containerEl.innerHTML = '';
+    if (arr.length === 0) {
+      const p = document.createElement('p');
+      p.style.opacity = '0.6';
+      p.textContent = 'Aucun élément.';
+      containerEl.appendChild(p);
+      return;
+    }
+    for (const it of arr) {
+      const node = makeCard(it);
+      containerEl.appendChild(node);
+    }
   };
 
+  renderTo(el.ownedList || el.mainList, obtained);
+  renderTo(el.wishList || el.mainList, wish);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  if (el.ownedSection) el.ownedSection.style.display = obtained.length ? 'block' : 'none';
+  if (el.wishSection) el.wishSection.style.display = wish.length ? 'block' : 'none';
+}
 
-    // Chemin unique et partagé pour tous : multi‑utilisateurs sans compte
-    const ITEMS_PATH = 'library/items';
-
-    /*****************************************************
-     *  API affiches & recherche : TMDB
-     *  (clé gratuite requise)
-     *****************************************************/
-    const TMDB_KEY = '124bdc1601294994a241722466e53891';
-    const TMDB_BASE = 'https://api.themoviedb.org/3';
-    const TMDB_IMG = (p) => p ? `https://image.tmdb.org/t/p/w500${p}` : '';
-
-    async function tmdbSearch(query, kind){
-      const type = kind==='serie' ? 'tv' : 'movie';
-      const url = `${TMDB_BASE}/search/${type}?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&language=fr-FR&include_adult=false`;
-      const r = await fetch(url); const j = await r.json();
-      return (j.results||[]);
-    }
-    async function tmdbCredits(id, kind){
-      const type = kind==='serie' ? 'tv' : 'movie';
-      const url = `${TMDB_BASE}/${type}/${id}/credits?api_key=${TMDB_KEY}&language=fr-FR`;
-      const r = await fetch(url); const j = await r.json();
-      return (j.cast||[]).slice(0,10).map(c=>c.name);
-    }
-    async function tmdbDetails(id, kind){
-      const type = kind==='serie' ? 'tv' : 'movie';
-      const url = `${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}&language=fr-FR`;
-      const r = await fetch(url); return await r.json();
-    }
-
-    /*****************************************************
-     *  Sélecteurs UI
-     *****************************************************/
-    const $ = (s)=>document.querySelector(s);
-    const listOwnedEl = $('#ownedList');
-    const listWishEl = $('#wishList');
-
-    const form = $('#addForm');
-    const typeEl = $('#type');
-    const titleEl = $('#title');
-    const yearEl = $('#year');
-    const posterEl = $('#posterUrl');
-    const sagaEl = $('#saga');
-    const seriesIdEl = $('#seriesId');
-    const seasonNumberEl = $('#seasonNumber');
-    const editionEl = $('#edition');
-    const ownedEl = $('#owned');
-    const dvdEl = $('#fmtDVD');
-    const brEl = $('#fmtBR');
-    const k4El = $('#fmt4K');
-
-    const qEl = $('#q');
-    const filterTypeEl = $('#filterType');
-    const filterFormatEl = $('#filterFormat');
-    const filterEditionEl = $('#filterEdition');
-    const onlyOwnedEl = $('#onlyOwned');
-
-    const acList = $('#ac-list');
-    const resetBtn = $('#resetBtn');
-    const exportBtn = $('#exportBtn');
-    const importBtn = $('#importBtn');
-
-    /*****************************************************
-     *  État local + LocalStorage (fallback offline)
-     *****************************************************/
-    const LS_KEY = 'mediaLib.v2';
-    const state = { items: [] };
-    function saveLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(state.items)); }
-    function loadLocal(){ try{ const r=localStorage.getItem(LS_KEY); if(r) state.items = JSON.parse(r);}catch(e){} }
-
-    /*****************************************************
-     *  Rendu des cartes
-     *****************************************************/
-    function render(){
-      const queryTxt = (qEl.value||'').toLowerCase().trim();
-      const t = filterTypeEl.value;
-      const f = filterFormatEl.value;
-      const e = filterEditionEl.value;
-      const onlyO = onlyOwnedEl.checked;
-
-      const filterFn = (it)=>{
-        if(t!=='all' && it.type!==t) return false;
-        if(onlyO && !it.owned) return false;
-        if(f!=='any' && !(it.formats||[]).includes(f)) return false;
-        if(e!=='any' && it.edition!==e) return false;
-        if(!queryTxt) return true;
-        const hay = `${it.title||''} ${(it.year||'')} ${(it.saga||'')} ${(it.actors||[]).join(' ')}`.toLowerCase();
-        return hay.includes(queryTxt);
+/* -------------------- FORM: ajout -------------------- */
+if (el.form) {
+  el.form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    try {
+      const item = {
+        type: (el.type && el.type.value) ? el.type.value : 'film',
+        title: el.title && el.title.value ? el.title.value.trim() : '',
+        year: el.year && el.year.value ? el.year.value.trim() : '',
+        posterUrl: el.posterUrl && el.posterUrl.value ? el.posterUrl.value.trim() : '',
+        saga: el.saga && el.saga.value ? el.saga.value.trim() : '',
+        edition: el.edition && el.edition.value ? el.edition.value : 'Simple',
+        obtained: el.ownedCheckbox ? !!el.ownedCheckbox.checked : false,
+        formats: [],
+        actors: Array.isArray(el.form._selectedCast) ? el.form._selectedCast : []
       };
 
-      const owned = state.items.filter(i=>i.owned).filter(filterFn);
-      const wish = state.items.filter(i=>!i.owned).filter(filterFn);
+      if (el.fmtDVD && el.fmtDVD.checked) item.formats.push('DVD');
+      if (el.fmtBR && el.fmtBR.checked) item.formats.push('Blu-ray');
+      if (el.fmt4K && el.fmt4K.checked) item.formats.push('4K');
 
-      const renderList = (el, arr)=>{
-        el.innerHTML='';
-        // Group by saga
-        const groups = new Map();
-        for(const it of arr){
-          const key = it.saga?.trim() || 'Sans saga';
-          if(!groups.has(key)) groups.set(key, []);
-          groups.get(key).push(it);
-        }
-        for(const [group, items] of groups){
-          // En‑tête groupe
-          const h = document.createElement('h3');
-          h.textContent = group; h.style.margin='10px 4px'; h.style.color='#fff';
-          el.appendChild(h);
-          const grid = document.createElement('div'); grid.className='grid'; el.appendChild(grid);
-          for(const item of items){ grid.appendChild(card(item)); }
-        }
-      };
-
-      renderList(listOwnedEl, owned);
-      renderList(listWishEl, wish);
-    }
-
-    function card(item){
-      const art = document.createElement('article'); art.className='card'; art.dataset.id=item.id||''; art.setAttribute('role','article');
-      const img = document.createElement('img'); img.className='poster'; img.alt = item.title||''; img.src = item.posterUrl || `https://via.placeholder.com/480x720.png?text=${encodeURIComponent(item.title||'Poster')}`; art.appendChild(img);
-      const c = document.createElement('div'); c.className='content';
-      const title = document.createElement('div'); title.className='title'; title.textContent = item.title||'Sans titre'; c.appendChild(title);
-      const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = `${item.type} ${item.year?`• ${item.year}`:''} ${item.saga?`• ${item.saga}`:''} ${item.seasonNumber?`• Saison ${item.seasonNumber}`:''}`; c.appendChild(meta);
-      const badges = document.createElement('div'); badges.className='badges';
-      (item.formats||[]).forEach(f=>{const b=document.createElement('span');b.className='badge';b.textContent=f;badges.appendChild(b)});
-      const ed=document.createElement('span'); ed.className='badge'; ed.textContent=item.edition||'Simple'; badges.appendChild(ed);
-      c.appendChild(badges);
-
-      // Actions
-      const row = document.createElement('div'); row.className='row-actions';
-      const left = document.createElement('div'); left.style.display='flex'; left.style.gap='8px'; left.style.alignItems='center';
-      const ownLabel = document.createElement('label'); ownLabel.className='chip'; const own = document.createElement('input'); own.type='checkbox'; own.checked=!!item.owned; own.addEventListener('change',()=>toggleOwned(item, own.checked)); ownLabel.appendChild(own); ownLabel.append(' Possédé'); left.appendChild(ownLabel);
-      const dvd = mkFmtToggle(item,'DVD'); const br=mkFmtToggle(item,'Blu-ray'); const k4=mkFmtToggle(item,'4K'); left.append(dvd,br,k4);
-      row.appendChild(left);
-      const del=document.createElement('button'); del.className='btn danger'; del.textContent='Supprimer'; del.addEventListener('click',()=>removeItem(item)); row.appendChild(del);
-      c.appendChild(row);
-
-      art.appendChild(c);
-      return art;
-    }
-    function mkFmtToggle(item,labelTxt){
-      const l=document.createElement('label'); l.className='chip';
-      const input=document.createElement('input'); input.type='checkbox'; input.checked=(item.formats||[]).includes(labelTxt);
-      input.addEventListener('change',()=>toggleFormat(item,labelTxt,input.checked)); l.appendChild(input); l.append(' '+labelTxt); return l;
-    }
-
-    /*****************************************************
-     *  Actions CRUD -> Firestore + LocalStorage
-     *****************************************************/
-    async function persist(item){
-      // Update local copy
-      const idx = state.items.findIndex(i=> (i.id && item.id && i.id===item.id) || i.localId===item.localId);
-      if(idx>-1){ state.items[idx]=item; } else { state.items.unshift(item); }
-      saveLocal(); render();
-      // Push Firestore
-      try{
-        if(item.id){ await updateDoc(doc(db, ITEMS_PATH, item.id), item); }
-        else{ const ref = await addDoc(collection(db, ITEMS_PATH), { ...item, createdAt: serverTimestamp() }); item.id = ref.id; saveLocal(); }
-      }catch(e){ console.warn('Firestore persist error', e); }
-    }
-    async function toggleOwned(item, val){ item.owned=!!val; await persist(item); }
-    async function toggleFormat(item, fmt, val){ const set=new Set(item.formats||[]); if(val)set.add(fmt); else set.delete(fmt); item.formats=[...set]; await persist(item); }
-    async function removeItem(item){ if(!confirm(`Supprimer « ${item.title} » ?`)) return; try{ if(item.id) await deleteDoc(doc(db, ITEMS_PATH, item.id)); }catch(e){} state.items = state.items.filter(i=>i!==item); saveLocal(); render(); }
-
-    /*****************************************************
-     *  Soumission formulaire
-     *****************************************************/
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const base = {
-        localId: crypto.randomUUID(),
-        type: typeEl.value,
-        title: titleEl.value.trim(),
-        year: yearEl.value.trim(),
-        posterUrl: posterEl.value.trim(),
-        saga: sagaEl.value.trim(),
-        seriesId: seriesIdEl.value.trim(),
-        seasonNumber: seasonNumberEl.value.trim(),
-        edition: editionEl.value,
-        owned: ownedEl.checked,
-        formats: [ ...(dvdEl.checked?['DVD']:[]), ...(brEl.checked?['Blu-ray']:[]), ...(k4El.checked?['4K']:[]) ],
-        actors: [],
-        createdAt: Date.now(),
-      };
-      if(!base.title) return alert('Titre requis');
-
-      // Si pas de jaquette, tente TMDB par titre
-      if(!base.posterUrl && TMDB_KEY && TMDB_KEY!=='TA_CLE_TMDB_ICI'){
-        try{
-          const r = await tmdbSearch(base.title, base.type);
-          if(r[0]){
-            base.posterUrl = TMDB_IMG(r[0].poster_path);
-            base.year = base.year || (r[0].release_date||r[0].first_air_date||'').slice(0,4);
-            // Saga depuis collection TMDB si présent
-            const det = await tmdbDetails(r[0].id, base.type);
-            if(det?.belongs_to_collection?.name) base.saga = base.saga || det.belongs_to_collection.name;
-            // Acteurs
-            base.actors = await tmdbCredits(r[0].id, base.type);
+      // Compléter via TMDB si poster manquant
+      if ((!item.posterUrl || item.posterUrl.length < 5) && TMDB_KEY) {
+        const kind = item.type === 'serie' ? 'tv' : 'movie';
+        const results = await tmdbSearch(item.title, kind);
+        if (results && results.length > 0) {
+          const best = results[0];
+          const det = await tmdbGetDetails(best.id, kind);
+          if (det) {
+            item.posterUrl = tmdbPosterPath(det.poster_path) || item.posterUrl;
+            item.year = item.year || (det.release_date || det.first_air_date || '').slice(0,4);
+            item.actors = item.actors.length ? item.actors : (det.credits?.cast?.slice(0,8).map(c => c.name) || []);
+            if (det.belongs_to_collection?.name) {
+              item.saga = item.saga || det.belongs_to_collection.name;
+            }
           }
-        }catch(err){ console.warn('TMDB auto fetch error', err); }
+        }
       }
 
-      await persist(base);
-      form.reset();
-      acList.style.display='none';
-    });
+      await addItemToFirestore(item);
+      try { el.form.reset(); } catch(e){}
+      // Effacer sélection d'acteurs après ajout
+      el.form._selectedCast = [];
+      if (el.title) el.title.focus();
+    } catch (err) {
+      console.error('Erreur ajout item:', err);
+      alert('Erreur lors de l\'ajout. Regarde la console pour plus de détails.');
+    }
+  });
+}
 
-    resetBtn.addEventListener('click', ()=>{ form.reset(); acList.style.display='none'; });
+/* -------------------- AUTO-COMPLETE sur champ Titre -------------------- */
+if (el.title && el.acList) {
+  const onType = debounce(async () => {
+    const q = (el.title.value || '').trim();
+    el.acList.innerHTML = '';
+    if (q.length < 2) { el.acList.style.display = 'none'; return; }
+    try {
+      const kindSel = el.type && el.type.value === 'serie' ? 'tv' : 'movie';
+      const results = await tmdbSearch(q, kindSel);
+      if (!results || !results.length) { el.acList.style.display = 'none'; return; }
+      const slice = results.slice(0, 8);
+      for (const r of slice) {
+        const div = document.createElement('div');
+        div.className = 'ac-item';
+        div.tabIndex = 0;
+        const name = r.title || r.name || 'Sans titre';
+        const year = (r.release_date || r.first_air_date || '').slice(0,4) || '—';
+        div.innerHTML = `
+          <img src="${tmdbPosterPath(r.poster_path) || 'https://via.placeholder.com/68x102?text=…'}" alt="">
+          <div class="ac-item-info">
+            <span class="ac-item-title">${name}</span>
+            <span class="ac-item-year">${year}</span>
+          </div>
+        `;
+        div.dataset.tmdbId = r.id;
+        div.dataset.mediaType = (r.media_type || (r.title ? 'movie' : 'tv'));
 
-    /*****************************************************
-     *  Autocomplete TMDB (titres)
-     *****************************************************/
-    let acTimer=null; 
-    titleEl.addEventListener('input', ()=>{
-      clearTimeout(acTimer);
-      const q = titleEl.value.trim(); if(q.length<2){ acList.style.display='none'; return; }
-      acTimer = setTimeout(async()=>{
-        try{
-          const results = await tmdbSearch(q, typeEl.value);
-          acList.innerHTML='';
-          results.slice(0,8).forEach(r=>{
-            const div=document.createElement('div'); div.className='ac-item'; div.setAttribute('role','option');
-            const img=document.createElement('img'); img.src = TMDB_IMG(r.poster_path) || 'https://via.placeholder.com/68x102?text=…'; img.alt='';
-            const title=document.createElement('div'); title.style.display='flex'; title.style.flexDirection='column';
-            const name=(typeEl.value==='serie'?r.name:r.title)||'Sans titre';
-            title.innerHTML = `<strong>${name}</strong><span style="color:#a8a8ad;font-size:12px">${(r.release_date||r.first_air_date||'').slice(0,4)}</span>`;
-            div.append(img,title);
-            div.addEventListener('click', async()=>{
-              titleEl.value = name;
-              yearEl.value = (r.release_date||r.first_air_date||'').slice(0,4);
-              posterEl.value = TMDB_IMG(r.poster_path) || '';
-              // Saga + acteurs
-              try{
-                const det = await tmdbDetails(r.id, typeEl.value);
-                if(det?.belongs_to_collection?.name) sagaEl.value = sagaEl.value || det.belongs_to_collection.name;
-                const cast = await tmdbCredits(r.id, typeEl.value);
-                // On ne stocke pas ici, mais on gardera lors de l'ajout
-                (titleEl)._selectedCast = cast; // attache temporaire
-              }catch{}
-              acList.style.display='none';
-              titleEl.focus();
-            });
-            acList.appendChild(div);
-          });
-          acList.style.display = acList.children.length? 'block':'none';
-        }catch(e){ acList.style.display='none'; }
-      }, 250);
-    });
-    document.addEventListener('click',(e)=>{ if(!acList.contains(e.target) && e.target!==titleEl) acList.style.display='none'; });
+        div.addEventListener('click', async () => {
+          try {
+            const id = div.dataset.tmdbId;
+            const kind = div.dataset.mediaType;
+            const det = await tmdbGetDetails(id, kind === 'tv' ? 'tv' : 'movie');
+            if (!det) return;
+            if (el.title) el.title.value = det.title || det.name || '';
+            if (el.year) el.year.value = (det.release_date || det.first_air_date || '').slice(0,4) || '';
+            if (el.posterUrl) el.posterUrl.value = tmdbPosterPath(det.poster_path) || '';
+            if (el.saga && det.belongs_to_collection?.name) el.saga.value = det.belongs_to_collection.name;
+            if (el.form) el.form._selectedCast = det.credits?.cast?.map(c => c.name) || [];
+            el.acList.style.display = 'none';
+            if (el.title) el.title.focus();
+          } catch (e) {
+            console.error('Erreur détail TMDB', e);
+          }
+        });
 
-    /*****************************************************
-     *  Export / Import JSON
-     *****************************************************/
-    exportBtn.addEventListener('click',()=>{
-      const blob=new Blob([JSON.stringify(state.items,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='bibliotheque.json'; a.click(); URL.revokeObjectURL(url);
-    });
-    importBtn.addEventListener('click',()=>{
-      const input=document.createElement('input'); input.type='file'; input.accept='application/json';
-      input.onchange=async()=>{ const f=input.files?.[0]; if(!f) return; const txt=await f.text(); try{ const arr=JSON.parse(txt); if(Array.isArray(arr)){ state.items=arr; saveLocal(); render(); } }catch{ alert('Import invalide'); } };
-      input.click();
-    });
+        el.acList.appendChild(div);
+      }
+      el.acList.style.display = 'block';
+    } catch (e) {
+      console.error('Autocomplétion TMDB erreur', e);
+      el.acList.style.display = 'none';
+    }
+  }, 250);
 
-    /*****************************************************
-     *  Abonnement temps réel Firestore (multi‑utilisateurs)
-     *****************************************************/
-    loadLocal();
-    render();
+  el.title.addEventListener('input', onType);
+  document.addEventListener('click', (ev) => {
+    if (!el.acList.contains(ev.target) && ev.target !== el.title) el.acList.style.display = 'none';
+  });
+}
 
-    const qItems = query(collection(db, ITEMS_PATH), orderBy('createdAt','desc'));
-    onSnapshot(qItems, (snap)=>{
-      const remote=[]; snap.forEach(d=>remote.push({ id:d.id, ...d.data() }));
-      // Fusion simple : privilégie le serveur
-      const map=new Map(state.items.map(i=>[i.id||i.localId,i]));
-      state.items = remote.map(r=>({ ...map.get(r.id)||{}, ...r }));
-      saveLocal(); render();
-    }, (err)=>{ console.warn('Firestore snapshot error', err); });
+/* -------------------- Bouton Effacer -------------------- */
+if (el.resetBtn && el.form) {
+  el.resetBtn.addEventListener('click', () => {
+    el.form.reset();
+    el.form._selectedCast = [];
+    if (el.acList) { el.acList.innerHTML = ''; el.acList.style.display = 'none'; }
+    if (el.title) el.title.focus();
+  });
+}
 
-  </script>
+/* -------------------- INITIAL LOAD -------------------- */
+startRealtimeListener();
+
+</script>
+
+
 </body>
 </html>
